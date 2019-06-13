@@ -25,7 +25,7 @@ import (
     "go/constant"
     "go/token"
 
-    "github.com/morphar/sqlparsers/pkg/postgres/privilege"
+    "github.com/IMQS/pgparser/parser/privilege"
 )
 
 // MaxUint is the maximum value of an uint.
@@ -361,6 +361,9 @@ func (u *sqlSymUnion) transactionModes() TransactionModes {
 %token <str>   TYPECAST TYPEANNOTATE DOT_DOT
 %token <str>   LESS_EQUALS GREATER_EQUALS NOT_EQUALS
 %token <str>   NOT_REGMATCH REGIMATCH NOT_REGIMATCH
+%token <str>   TS_MATCH
+%token <str>   JSON_LEFT_CONTAINS JSON_RIGHT_CONTAINS
+%token <str>   JSON_EXTRACT JSON_EXTRACT_TEXT
 %token <str>   ERROR
 
 // If you want to make any keyword changes, add the new keyword here as well as
@@ -800,6 +803,8 @@ func (u *sqlSymUnion) transactionModes() TransactionModes {
 %left      AND
 %right     NOT
 %nonassoc  IS                  // IS sets precedence for IS NULL, etc
+%nonassoc  JSON_EXTRACT JSON_EXTRACT_TEXT
+%nonassoc  TS_MATCH JSON_LEFT_CONTAINS JSON_RIGHT_CONTAINS
 %nonassoc  '<' '>' '=' LESS_EQUALS GREATER_EQUALS NOT_EQUALS
 %nonassoc  '~' BETWEEN IN LIKE ILIKE SIMILAR NOT_REGMATCH REGIMATCH NOT_REGIMATCH NOT_LA
 %nonassoc  ESCAPE              // ESCAPE must be just above LIKE/ILIKE/SIMILAR
@@ -4322,6 +4327,26 @@ a_expr:
 | a_expr NOT_REGIMATCH a_expr
   {
     $$.val = &ComparisonExpr{Operator: NotRegIMatch, Left: $1.expr(), Right: $3.expr()}
+  }
+| a_expr TS_MATCH a_expr
+  {
+    $$.val = &ComparisonExpr{Operator: TSMatch, Left: $1.expr(), Right: $3.expr()}
+  }
+| a_expr JSON_LEFT_CONTAINS a_expr
+  {
+    $$.val = &ComparisonExpr{Operator: JSONLeftContains, Left: $1.expr(), Right: $3.expr()}
+  }
+| a_expr JSON_RIGHT_CONTAINS a_expr
+  {
+    $$.val = &ComparisonExpr{Operator: JSONRightContains, Left: $1.expr(), Right: $3.expr()}
+  }
+| a_expr JSON_EXTRACT a_expr
+  {
+    $$.val = &ComparisonExpr{Operator: JSONExtract, Left: $1.expr(), Right: $3.expr()}
+  }
+| a_expr JSON_EXTRACT_TEXT a_expr
+  {
+    $$.val = &ComparisonExpr{Operator: JSONExtractText, Left: $1.expr(), Right: $3.expr()}
   }
 | a_expr IS NAN %prec IS
   {

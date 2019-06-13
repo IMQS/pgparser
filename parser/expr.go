@@ -295,7 +295,11 @@ const (
 	IsNotDistinctFrom
 	Is
 	IsNot
-
+	TSMatch
+	JSONLeftContains
+	JSONRightContains
+	JSONExtract
+	JSONExtractText
 	// The following operators will always be used with an associated SubOperator.
 	// If Go had algebraic data types they would be defined in a self-contained
 	// manner like:
@@ -337,6 +341,11 @@ var ComparisonOpName = [...]string{
 	IsNotDistinctFrom: "IS NOT DISTINCT FROM",
 	Is:                "IS",
 	IsNot:             "IS NOT",
+	TSMatch:           "@@",
+	JSONLeftContains:  "<@",
+	JSONRightContains: "@>",
+	JSONExtract:       "->",
+	JSONExtractText:   "->>",
 	Any:               "ANY",
 	Some:              "SOME",
 	All:               "ALL",

@@ -393,6 +393,7 @@ func (u *sqlSymUnion) transactionModes() TransactionModes {
 
 %token <str>   ELSE ENCODING END ESCAPE EXCEPT
 %token <str>   EXISTS EXECUTE EXPERIMENTAL_FINGERPRINTS EXPLAIN EXTRACT EXTRACT_DURATION
+%token <str>   EPOCH		
 
 %token <str>   FALSE FAMILY FETCH FILTER FIRST FLOAT FLOAT4 FLOAT8 FLOORDIV FOLLOWING FOR
 %token <str>   FORCE_INDEX FOREIGN FROM FULL
@@ -5047,9 +5048,9 @@ array_expr_list:
   }
 
 extract_list:
-  extract_arg FROM a_expr
+  a_expr FROM a_expr
   {
-    $$.val = Exprs{&StrVal{s: $1}, $3.expr()}
+    $$.val = Exprs{$1.expr(), $3.expr()}
   }
 | expr_list
   {
@@ -5066,6 +5067,7 @@ extract_arg:
 | HOUR
 | MINUTE
 | SECOND
+| EPOCH
 
 // OVERLAY() arguments
 // SQL99 defines the OVERLAY() function:

@@ -4741,11 +4741,11 @@ func_expr_common_subexpr:
   }
 | EXTRACT '(' extract_list ')'
   {
-    $$.val = &FuncExpr{Func: wrapFunction($1), Exprs: $3.exprs()}
+	  $$.val = &FuncExpr{Func: wrapFunction($1), Exprs: $3.exprs(), Separator: " FROM "}
   }
 | EXTRACT_DURATION '(' extract_list ')'
   {
-    $$.val = &FuncExpr{Func: wrapFunction($1), Exprs: $3.exprs()}
+  $$.val = &FuncExpr{Func: wrapFunction($1), Exprs: $3.exprs()}
   }
 | OVERLAY '(' overlay_list ')'
   {

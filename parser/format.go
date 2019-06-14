@@ -36,6 +36,8 @@ type fmtFlags struct {
 	// starDatumFormat is an optional interceptor for StarDatum.Format calls,
 	// can be used to customize the formatting of StarDatums.
 	starDatumFormat func(buf *bytes.Buffer, f FmtFlags)
+	// exprSearator is used to separate expressions
+	exprsSeparator string
 	// If true, non-function names are replaced by underscores.
 	anonymize bool
 	// If true, strings will be rendered without wrapping quotes if they
@@ -51,6 +53,7 @@ type fmtFlags struct {
 	disambiguateDatumTypes bool
 	// If false, passwords are replaced by *****.
 	showPasswords bool
+	// If true use extract(<val1> from <val2>) and not extract(val1, val2)
 }
 
 // FmtFlags enables conditional formatting in the pretty-printer.

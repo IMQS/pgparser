@@ -10708,7 +10708,7 @@ sqldefault:
 		sqlDollar = sqlS[sqlpt-4 : sqlpt+1]
 //line sql.y:4743
 		{
-			sqlVAL.union.val = &FuncExpr{Func: wrapFunction(sqlDollar[1].str), Exprs: sqlDollar[3].union.exprs()}
+			sqlVAL.union.val = &FuncExpr{Func: wrapFunction(sqlDollar[1].str), Exprs: sqlDollar[3].union.exprs(), Separator: " FROM "}
 		}
 	case 840:
 		sqlDollar = sqlS[sqlpt-4 : sqlpt+1]

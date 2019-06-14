@@ -706,7 +706,11 @@ type Exprs []Expr
 func (node Exprs) Format(buf *bytes.Buffer, f FmtFlags) {
 	for i, n := range node {
 		if i > 0 {
-			buf.WriteString(", ")
+			if f.exprsSeparator != "" {
+				buf.WriteString(f.exprsSeparator)
+			} else {
+				buf.WriteString(", ")
+			}
 		}
 		FormatNode(buf, f, n)
 	}
@@ -894,7 +898,9 @@ type FuncExpr struct {
 	// Filter is used for filters on aggregates: SUM(k) FILTER (WHERE k > 0)
 	Filter    Expr
 	WindowDef *WindowDef
-
+	// Separator is used to seperate Exprs i.e extract(epoch from time)
+	// instead of extract(epoch, time)
+	Separator string
 	typeAnnotation
 	fn Builtin
 }
@@ -973,7 +979,12 @@ func (node *FuncExpr) Format(buf *bytes.Buffer, f FmtFlags) {
 	FormatNode(buf, &fmtDisableAnonymize, node.Func)
 	buf.WriteByte('(')
 	buf.WriteString(typ)
+	oldSeparator := f.exprsSeparator
+	if node.Separator != "" {
+		f.exprsSeparator = node.Separator
+	}
 	FormatNode(buf, f, node.Exprs)
+	f.exprsSeparator = oldSeparator
 	buf.WriteByte(')')
 	if window := node.WindowDef; window != nil {
 		buf.WriteString(" OVER ")

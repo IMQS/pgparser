@@ -3,51 +3,52 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
-	"os"
 
-	postgresGenerator "github.com/IMQS/pgparser/generator"
-	postgresParser "github.com/IMQS/pgparser/parser"
+	"github.com/IMQS/pgparser/generator"
+	"github.com/IMQS/pgparser/parser"
 )
-
-var (
-	sql      string = ""
-	printSQL bool   = false
-)
-
-func init() {
-	log.SetFlags(log.Ltime | log.Lshortfile)
-
-	flag.BoolVar(&printSQL, "print", printSQL, "Print the generated SQL after it has been parsed?")
-	flag.StringVar(&sql, "sql", sql, "Required. The SQL to parse.")
-}
 
 func main() {
+	s := flag.String("sql", "", "SQL Statement")
+	f := flag.String("file", "", "File Containing SQL")
+	p := flag.Bool("print", true, "Print SQL")
+	g := flag.Bool("generate", false, "Run Generator")
+
 	flag.Parse()
 
-	if sql == "" && len(os.Args) != 2 {
-		fmt.Println("\nPlease provide an SQL to parse")
-		fmt.Println(`Example: sqlparsers -print -sql "SELECT * FROM users"`)
+	if *s == "" && *f == "" {
+		fmt.Println("\nPlease provide SQL to parse")
+		fmt.Println("Either:\n pgparser -sql \"SELECT * FROM users\"")
+		fmt.Println("Or:\n pgparser -file <filename containing sql>")
 		fmt.Println("\nFlags:")
 		flag.PrintDefaults()
 		fmt.Println("")
 		return
 	}
 
-	// TODO: Is this right?
-	if sql == "" && len(os.Args) == 2 {
-		sql = os.Args[1]
+	var sql string
+	if *s != "" {
+		sql = *s
+	} else {
+		content, err := ioutil.ReadFile(*f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sql = string(content)
 	}
 
-	stmt, err := postgresParser.Parse(sql)
+	stmt, err := parser.Parse(sql)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	if *g {
+		fmt.Println(generator.Parse(stmt[0]))
+	}
 
-	fmt.Println(postgresGenerator.Parse(stmt[0]))
-
-	if printSQL || true == true {
+	if *p {
 		fmt.Println("------------------------------- GENERATED QUERY -------------------------------------")
 		fmt.Println(stmt.String())
 		return

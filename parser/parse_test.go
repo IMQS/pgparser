@@ -398,6 +398,11 @@ func TestParse(t *testing.T) {
 		{`SELECT 'a' FROM t@{FORCE_INDEX=bar,NO_INDEX_JOIN}`},
 		{`SELECT * FROM t AS "of" AS OF SYSTEM TIME '2016-01-01'`},
 
+		{`SELECT a->'one' FROM t`},
+		{`SELECT a->>'one' FROM t`},
+		{`SELECT a->0 FROM t`},
+		{`SELECT a->'0'->>'one' FROM t`},
+
 		{`SELECT '1':::INT`},
 
 		{`SELECT '1'::INT`},
@@ -566,6 +571,7 @@ func TestParse(t *testing.T) {
 		{`SELECT a FROM t LIMIT a OFFSET b`},
 		{`SELECT DISTINCT * FROM t`},
 		{`SELECT DISTINCT a, b FROM t`},
+		{`SELECT DISTINCT (a, b), c, d FROM t`},
 		{`SET a = 3`},
 		{`SET a = 3, 4`},
 		{`SET a = '3'`},
@@ -778,6 +784,10 @@ func TestParse2(t *testing.T) {
 			`SELECT a FROM t@"primary"`},
 		{`SELECT a FROM t ORDER BY INDEX t@primary`,
 			`SELECT a FROM t ORDER BY INDEX t@"primary"`},
+
+		// Distinct on some fields
+		{`SELECT DISTINCT ON (a, b) a, b FROM t`,
+			`SELECT DISTINCT ON (a, b) a, b FROM t`},
 
 		// Escaped string literals are not always escaped the same because
 		// '''' and e'\'' scan to the same token. It's more convenient to

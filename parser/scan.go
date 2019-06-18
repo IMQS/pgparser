@@ -263,10 +263,12 @@ func (s *Scanner) scan(lval *sqlSymType) {
 		switch s.peek() {
 		case '>':
 			if s.peekN(1) == '>' {
+				fmt.Println("Found JSON Text")
 				s.pos += 2
 				lval.id = JSON_EXTRACT_TEXT
 				return
 			}
+			fmt.Println("Found JSON")
 			s.pos++
 			lval.id = JSON_EXTRACT
 			return

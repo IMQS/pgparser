@@ -639,6 +639,7 @@ func (u *sqlSymUnion) transactionModes() TransactionModes {
 %type <*InterleaveDef> opt_interleave
 %type <empty> opt_all_clause
 %type <bool> distinct_clause
+%type <SelectExprs>	distinct_on_clause
 %type <NameList> opt_column_list
 %type <OrderBy> sort_clause opt_sort_clause
 %type <[]*Order> sortby_list
@@ -3050,6 +3051,20 @@ simple_select:
       Window:  $8.window(),
     }
   }
+| SELECT distinct_on_clause target_list
+    from_clause where_clause
+    group_clause having_clause window_clause
+  {
+    $$.val = &SelectClause{
+	DistinctOn:    $2.selExprs(),
+	Exprs:         $3.selExprs(),
+	From:          $4.from(),
+	Where:         newWhere(astWhere, $5.expr()),
+	GroupBy:       $6.groupBy(),
+	Having:        newWhere(astHaving, $7.expr()),
+	Window:        $8.window(),
+    }
+  }
 | SELECT distinct_clause target_list
     from_clause where_clause
     group_clause having_clause window_clause
@@ -3148,6 +3163,12 @@ all_or_distinct:
 | /* EMPTY */
   {
     $$.val = false
+  }
+
+distinct_on_clause:				
+DISTINCT ON '(' target_list ')'
+  {
+	  $$.val = $4.selExprs()
   }
 
 distinct_clause:
@@ -4569,6 +4590,14 @@ b_expr:
 | b_expr IS NOT OF '(' type_list ')' %prec IS
   {
     $$.val = &IsOfTypeExpr{Not: true, Expr: $1.expr(), Types: $6.colTypes()}
+  }
+| b_expr JSON_EXTRACT b_expr
+  {
+    $$.val = &ComparisonExpr{Operator: JSONExtract, Left: $1.expr(), Right: $3.expr()}
+  }
+| b_expr JSON_EXTRACT_TEXT b_expr
+  {
+    $$.val = &ComparisonExpr{Operator: JSONExtractText, Left: $1.expr(), Right: $3.expr()}
   }
 
 // Productions that can be used in both a_expr and b_expr.

@@ -67,6 +67,7 @@ func (node *ParenSelect) Format(buf *bytes.Buffer, f FmtFlags) {
 // SelectClause represents a SELECT statement.
 type SelectClause struct {
 	Distinct    bool
+	DistinctOn  SelectExprs
 	Exprs       SelectExprs
 	From        *From
 	Where       *Where
@@ -85,6 +86,12 @@ func (node *SelectClause) Format(buf *bytes.Buffer, f FmtFlags) {
 		buf.WriteString("SELECT ")
 		if node.Distinct {
 			buf.WriteString("DISTINCT ")
+		}
+		if len(node.DistinctOn) > 0 {
+			fmt.Printf("%T\n", node.DistinctOn)
+			buf.WriteString("DISTINCT ON (")
+			FormatNode(buf, f, node.DistinctOn)
+			buf.WriteString(") ")
 		}
 		FormatNode(buf, f, node.Exprs)
 		FormatNode(buf, f, node.From)

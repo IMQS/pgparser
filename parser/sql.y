@@ -4364,11 +4364,11 @@ a_expr:
   }
 | a_expr JSON_EXTRACT a_expr
   {
-    $$.val = &ComparisonExpr{Operator: JSONExtract, Left: $1.expr(), Right: $3.expr()}
+    $$.val = &ExtractExpr{Operator: JSONExtract, Left: $1.expr(), Right: $3.expr()}
   }
 | a_expr JSON_EXTRACT_TEXT a_expr
   {
-    $$.val = &ComparisonExpr{Operator: JSONExtractText, Left: $1.expr(), Right: $3.expr()}
+    $$.val = &ExtractExpr{Operator: JSONExtractText, Left: $1.expr(), Right: $3.expr()}
   }
 | a_expr IS NAN %prec IS
   {
@@ -4590,14 +4590,6 @@ b_expr:
 | b_expr IS NOT OF '(' type_list ')' %prec IS
   {
     $$.val = &IsOfTypeExpr{Not: true, Expr: $1.expr(), Types: $6.colTypes()}
-  }
-| b_expr JSON_EXTRACT b_expr
-  {
-    $$.val = &ComparisonExpr{Operator: JSONExtract, Left: $1.expr(), Right: $3.expr()}
-  }
-| b_expr JSON_EXTRACT_TEXT b_expr
-  {
-    $$.val = &ComparisonExpr{Operator: JSONExtractText, Left: $1.expr(), Right: $3.expr()}
   }
 
 // Productions that can be used in both a_expr and b_expr.

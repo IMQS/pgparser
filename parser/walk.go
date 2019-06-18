@@ -46,6 +46,19 @@ type Visitor interface {
 }
 
 // Walk implements the Expr interface.
+func (expr *ExtractExpr) Walk(v Visitor) Expr {
+	left, changedL := WalkExpr(v, expr.Left)
+	right, changedR := WalkExpr(v, expr.Right)
+	if changedL || changedR {
+		exprCopy := *expr
+		exprCopy.Left = left
+		exprCopy.Right = right
+		return &exprCopy
+	}
+	return expr
+}
+
+// Walk implements the Expr interface.
 func (expr *AndExpr) Walk(v Visitor) Expr {
 	left, changedL := WalkExpr(v, expr.Left)
 	right, changedR := WalkExpr(v, expr.Right)

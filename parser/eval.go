@@ -25,16 +25,16 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/lib/pq/oid"
 	"github.com/IMQS/pgparser/parser/util"
+	"github.com/lib/pq/oid"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
-	"github.com/cockroachdb/apd"
 	"github.com/IMQS/pgparser/parser/util/duration"
 	"github.com/IMQS/pgparser/parser/util/hlc"
 	"github.com/IMQS/pgparser/parser/util/timeutil"
 	"github.com/IMQS/pgparser/parser/util/uuid"
+	"github.com/cockroachdb/apd"
 )
 
 var (
@@ -1889,6 +1889,21 @@ func (ctx *EvalContext) GetLocation() *time.Location {
 
 func (ctx *EvalContext) getTmpDec() *apd.Decimal {
 	return &ctx.tmpDec
+}
+
+// Eval implements the TypedExpr interface.
+func (expr *ExtractExpr) Eval(ctx *EvalContext) (Datum, error) {
+	left, err := expr.Left.(TypedExpr).Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	/*
+		right, err := expr.Right.(TypedExpr).Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+	*/
+	return left, nil
 }
 
 // Eval implements the TypedExpr interface.

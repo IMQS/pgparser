@@ -188,6 +188,7 @@ func (s *Scanner) scan(lval *sqlSymType) {
 
 	switch ch {
 	case '$':
+		fmt.Println("Found placeholder")
 		// placeholder? $[0-9]+
 		if isDigit(s.peek()) {
 			s.scanPlaceholder(lval)
@@ -263,12 +264,10 @@ func (s *Scanner) scan(lval *sqlSymType) {
 		switch s.peek() {
 		case '>':
 			if s.peekN(1) == '>' {
-				fmt.Println("Found JSON Text")
 				s.pos += 2
 				lval.id = JSON_EXTRACT_TEXT
 				return
 			}
-			fmt.Println("Found JSON")
 			s.pos++
 			lval.id = JSON_EXTRACT
 			return
@@ -625,6 +624,7 @@ func (s *Scanner) scanNumber(lval *sqlSymType, ch int) {
 }
 
 func (s *Scanner) scanPlaceholder(lval *sqlSymType) {
+	fmt.Println("Placeholder")
 	start := s.pos
 	for isDigit(s.peek()) {
 		s.pos++

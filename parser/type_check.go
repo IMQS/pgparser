@@ -100,6 +100,23 @@ func decorateTypeCheckError(err error, format string, a ...interface{}) error {
 }
 
 // TypeCheck implements the Expr interface.
+func (expr *ExtractExpr) TypeCheck(ctx *SemaContext, desired Type) (TypedExpr, error) {
+	/*
+		leftTyped, err := typeCheckAndRequireBoolean(ctx, expr.Left, "AND argument")
+		if err != nil {
+			return nil, err
+		}
+		rightTyped, err := typeCheckAndRequireBoolean(ctx, expr.Right, "AND argument")
+		if err != nil {
+			return nil, err
+		}
+		expr.Left, expr.Right = leftTyped, rightTyped
+		expr.typ = TypeExtract
+	*/
+	return expr, nil
+}
+
+// TypeCheck implements the Expr interface.
 func (expr *AndExpr) TypeCheck(ctx *SemaContext, desired Type) (TypedExpr, error) {
 	leftTyped, err := typeCheckAndRequireBoolean(ctx, expr.Left, "AND argument")
 	if err != nil {

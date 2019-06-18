@@ -79,6 +79,7 @@ type operatorExpr interface {
 }
 
 var _ operatorExpr = &AndExpr{}
+var _ operatorExpr = &ExtractExpr{}
 var _ operatorExpr = &OrExpr{}
 var _ operatorExpr = &NotExpr{}
 var _ operatorExpr = &BinaryExpr{}
@@ -95,6 +96,7 @@ type operator interface {
 var _ operator = UnaryOperator(0)
 var _ operator = BinaryOperator(0)
 var _ operator = ComparisonOperator(0)
+var _ operator = ExtractOperator(0)
 
 // exprFmtWithParen is a variant of Format() which adds a set of outer parens
 // if the expression involves an operator. It is used internally when the
@@ -126,6 +128,52 @@ func (ta typeAnnotation) assertTyped() {
 		panic("ReturnType called on TypedExpr with empty typeAnnotation. " +
 			"Was the underlying Expr type-checked before asserting a type of TypedExpr?")
 	}
+}
+
+type ExtractOperator int
+
+func (ExtractOperator) operator() {}
+
+const (
+	JSONExtract ExtractOperator = iota
+	JSONExtractText
+)
+
+var ExtractOpName = [...]string{
+	JSONExtract:     "->",
+	JSONExtractText: "->>",
+}
+
+type ExtractExpr struct {
+	Operator    ExtractOperator
+	Left, Right Expr
+
+	typeAnnotation
+}
+
+func (*ExtractExpr) operatorExpr() {}
+
+func (node *ExtractExpr) Format(buf *bytes.Buffer, f FmtFlags) {
+	FormatNode(buf, f, node.Left)
+	buf.WriteString(ExtractOpName[node.Operator])
+	FormatNode(buf, f, node.Right)
+	//	binExprFmtWithParen(buf, f, node.Left, ExtractOpName[node.Operator], node.Right)
+}
+
+func NewTypedExtractExpr(left, right TypedExpr) *ExtractExpr {
+	node := &ExtractExpr{Left: left, Right: right}
+	// node.typ = TypeExtract
+	return node
+}
+
+// TypedLeft returns the AndExpr's left expression as a TypedExpr.
+func (node *ExtractExpr) TypedLeft() TypedExpr {
+	return node.Left.(TypedExpr)
+}
+
+// TypedRight returns the AndExpr's right expression as a TypedExpr.
+func (node *ExtractExpr) TypedRight() TypedExpr {
+	return node.Right.(TypedExpr)
 }
 
 // AndExpr represents an AND expression.
@@ -298,8 +346,6 @@ const (
 	TSMatch
 	JSONLeftContains
 	JSONRightContains
-	JSONExtract
-	JSONExtractText
 	// The following operators will always be used with an associated SubOperator.
 	// If Go had algebraic data types they would be defined in a self-contained
 	// manner like:
@@ -344,8 +390,6 @@ var ComparisonOpName = [...]string{
 	TSMatch:           "@@",
 	JSONLeftContains:  "<@",
 	JSONRightContains: "@>",
-	JSONExtract:       "->",
-	JSONExtractText:   "->>",
 	Any:               "ANY",
 	Some:              "SOME",
 	All:               "ALL",
@@ -1228,6 +1272,7 @@ func (node *AliasedTableExpr) String() string { return AsString(node) }
 func (node *ParenTableExpr) String() string   { return AsString(node) }
 func (node *JoinTableExpr) String() string    { return AsString(node) }
 func (node *AndExpr) String() string          { return AsString(node) }
+func (node *ExtractExpr) String() string      { return AsString(node) }
 func (node *Array) String() string            { return AsString(node) }
 func (node *BinaryExpr) String() string       { return AsString(node) }
 func (node *CaseExpr) String() string         { return AsString(node) }

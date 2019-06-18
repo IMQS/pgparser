@@ -353,6 +353,7 @@ func TestParse(t *testing.T) {
 		{`SELECT 1.2e+1`},
 		{`SELECT 1.2e-1`},
 		{`SELECT true AND false`},
+		{`SELECT (true AND false) AND true`},
 		{`SELECT true AND NULL`},
 		{`SELECT true = false`},
 		{`SELECT (true = false)`},
@@ -401,7 +402,7 @@ func TestParse(t *testing.T) {
 		{`SELECT a->'one' FROM t`},
 		{`SELECT a->>'one' FROM t`},
 		{`SELECT a->0 FROM t`},
-		{`SELECT a->'0'->>'one' FROM t`},
+		{`SELECT a->0->>'one' FROM t`},
 
 		{`SELECT '1':::INT`},
 

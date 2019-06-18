@@ -174,6 +174,10 @@ func (expr *BinaryExpr) normalize(v *normalizeVisitor) TypedExpr {
 	return final
 }
 
+func (expr *ExtractExpr) normalize(v *normalizeVisitor) TypedExpr {
+	return expr
+}
+
 func (expr *AndExpr) normalize(v *normalizeVisitor) TypedExpr {
 	left := expr.TypedLeft()
 	right := expr.TypedRight()

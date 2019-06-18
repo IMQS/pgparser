@@ -24,8 +24,6 @@ import (
 	"strings"
 	"testing"
 	"unicode/utf8"
-
-	"github.com/IMQS/pgparser/parser/testutils"
 )
 
 // TestParse verifies that we can parse the supplied SQL and regenerate the SQL
@@ -920,7 +918,7 @@ func TestParse2(t *testing.T) {
 			`SELECT overlay('w33333rce', 'resou', 3, 5)`},
 		// Special extract syntax
 		{`SELECT EXTRACT(second from now())`,
-			`SELECT extract('second', now())`},
+			`SELECT extract(second FROM now())`},
 		// Special trim syntax
 		{`SELECT TRIM('xy' from 'xyxtrimyyx')`,
 			`SELECT btrim('xyxtrimyyx', 'xy')`},
@@ -1380,8 +1378,9 @@ func TestParsePanic(t *testing.T) {
 		"F(0"
 	_, err := Parse(s)
 	expected := `syntax error at or near "EOF"`
-	if !testutils.IsError(err, expected) {
-		t.Fatalf("expected %s, but found %v", expected, err)
+	result := err.Error()
+	if !strings.Contains(result, expected) {
+		t.Fatalf("expected %v, but found %v, %v", expected, result, strings.Compare(expected, result))
 	}
 }
 

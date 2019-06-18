@@ -259,6 +259,19 @@ func (s *Scanner) scan(lval *sqlSymType) {
 		s.scanIdent(lval)
 		return
 
+	case '-':
+		switch s.peek() {
+		case '>':
+			if s.peekN(1) == '>' {
+				s.pos += 2
+				lval.id = JSON_EXTRACT_TEXT
+				return
+			}
+			s.pos++
+			lval.id = JSON_EXTRACT
+			return
+		}
+		return
 	case '.':
 		switch t := s.peek(); {
 		case t == '.': // ..
@@ -304,8 +317,25 @@ func (s *Scanner) scan(lval *sqlSymType) {
 			s.pos++
 			lval.id = LESS_EQUALS
 			return
+		case '@': // <@
+			s.pos++
+			lval.id = JSON_LEFT_CONTAINS
+			return
 		}
 		return
+
+	case '@':
+		switch s.peek() {
+		case '>': // @>
+			s.pos++
+			lval.id = JSON_RIGHT_CONTAINS
+			fmt.Println("Set JSON CONTAIN")
+			return
+		case '@': // @@
+			s.pos++
+			lval.id = TS_MATCH
+			return
+		}
 
 	case '>':
 		switch s.peek() {

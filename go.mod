@@ -9,6 +9,7 @@ require (
 	github.com/gogo/protobuf v1.2.1
 	github.com/knz/strtime v0.0.0-20181018220328-af2256ee352c
 	github.com/lib/pq v1.1.1
+	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5
 	github.com/pkg/errors v0.8.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/pflag v1.0.3

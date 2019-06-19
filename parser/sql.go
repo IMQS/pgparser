@@ -10247,7 +10247,6 @@ sqldefault:
 		sqlDollar = sqlS[sqlpt-3 : sqlpt+1]
 //line sql.y:4370
 		{
-			fmt.Printf("%v\n", sqlDollar[1])
 			sqlVAL.union.val = &ExtractExpr{Operator: JSONExtractText, Left: sqlDollar[1].union.expr(), Right: sqlDollar[3].union.expr()}
 		}
 	case 751:

@@ -2893,6 +2893,11 @@ func (t *DString) Eval(_ *EvalContext) (Datum, error) {
 }
 
 // Eval implements the TypedExpr interface.
+func (t *DJSONB) Eval(_ *EvalContext) (Datum, error) {
+	return t, nil
+}
+
+// Eval implements the TypedExpr interface.
 func (t *DCollatedString) Eval(_ *EvalContext) (Datum, error) {
 	return t, nil
 }

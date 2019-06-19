@@ -859,7 +859,7 @@ func (u *sqlSymUnion) transactionModes() TransactionModes {
 // We make them high-precedence to support their use as function names.
 // They wouldn't be given a precedence at all, were it not that we need
 // left-associativity among the JOIN rules themselves.
-%left      JOIN CROSS LEFT FULL RIGHT INNER NATURAL
+%left      JOIN CROSS LEFT FULL RIGHT INNER NATURAL LATERAL
 
 %%
 

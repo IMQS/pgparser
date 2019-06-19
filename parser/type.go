@@ -78,6 +78,8 @@ var (
 	TypeString Type = tString{}
 	// TypeCollatedString is the type family of a DString. CANNOT be compared with
 	// ==.
+	// TypeJSONB is the type of a DJSONB.
+	TypeJSONB          Type = tJSONB{}
 	TypeCollatedString Type = TCollatedString{}
 	// TypeBytes is the type of a DBytes. Can be compared with ==.
 	TypeBytes Type = tBytes{}
@@ -140,6 +142,7 @@ var (
 		TypeFloat,
 		TypeDecimal,
 		TypeString,
+		TypeJSONB,
 		TypeBytes,
 		TypeDate,
 		TypeTimestamp,
@@ -187,6 +190,7 @@ var OidToType = map[oid.Oid]Type{
 	oid.T__int8:        TypeIntArray,
 	oid.T_record:       TypeTuple,
 	oid.T_text:         TypeString,
+	oid.T_jsonb:        TypeJSONB,
 	oid.T_timestamp:    TypeTimestamp,
 	oid.T_timestamptz:  TypeTimestampTZ,
 	oid.T_uuid:         TypeUUID,
@@ -286,6 +290,16 @@ func (tString) Size() (uintptr, bool)       { return unsafe.Sizeof(DString("")),
 func (tString) Oid() oid.Oid                { return oid.T_text }
 func (tString) SQLName() string             { return "text" }
 func (tString) IsAmbiguous() bool           { return false }
+
+type tJSONB struct{}
+
+func (tJSONB) String() string              { return "jsonb" }
+func (tJSONB) Equivalent(other Type) bool  { return UnwrapType(other) == TypeJSONB || other == TypeAny }
+func (tJSONB) FamilyEqual(other Type) bool { return UnwrapType(other) == TypeJSONB }
+func (tJSONB) Size() (uintptr, bool)       { return unsafe.Sizeof(DJSONB("")), variableSize }
+func (tJSONB) Oid() oid.Oid                { return oid.T_text }
+func (tJSONB) SQLName() string             { return "jsonb" }
+func (tJSONB) IsAmbiguous() bool           { return false }
 
 // TCollatedString is the type of strings with a locale.
 type TCollatedString struct {

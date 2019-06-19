@@ -34,9 +34,9 @@ import (
 	"golang.org/x/text/collate"
 	"golang.org/x/text/language"
 
-	"github.com/cockroachdb/apd"
 	"github.com/IMQS/pgparser/parser/util/duration"
 	"github.com/IMQS/pgparser/parser/util/uuid"
+	"github.com/cockroachdb/apd"
 )
 
 var (
@@ -776,6 +776,105 @@ func (d *DString) Format(buf *bytes.Buffer, f FmtFlags) {
 
 // Size implements the Datum interface.
 func (d *DString) Size() uintptr {
+	return unsafe.Sizeof(*d) + uintptr(len(*d))
+}
+
+type DJSONB string
+
+func NewDJSONB(d string) *DJSONB {
+	r := DJSONB(d)
+	return &r
+}
+
+func AsDJSONB(e Expr) (DJSONB, bool) {
+	switch t := e.(type) {
+	case *DJSONB:
+		return *t, true
+	case *DOidWrapper:
+		return AsDJSONB(t.Wrapped)
+	}
+	return "", false
+}
+
+func MustBeDJSONB(e Expr) DJSONB {
+	i, ok := AsDJSONB(e)
+	if !ok {
+		panic(fmt.Errorf("expected *DJSONB, found %T", e))
+	}
+	return i
+}
+
+// ResolvedType implements the TypedExpr interface.
+func (*DJSONB) ResolvedType() Type {
+	return TypeJSONB
+}
+
+// Compare implements the Datum interface.
+func (d *DJSONB) Compare(ctx *EvalContext, other Datum) int {
+	if other == DNull {
+		// NULL is less than any non-NULL value.
+		return 1
+	}
+	v, ok := AsDJSONB(other)
+	if !ok {
+		panic(makeUnsupportedComparisonMessage(d, other))
+	}
+	if *d < v {
+		return -1
+	}
+	if *d > v {
+		return 1
+	}
+	return 0
+}
+
+// Prev implements the Datum interface.
+func (d *DJSONB) Prev() (Datum, bool) {
+	return nil, false
+}
+
+// Next implements the Datum interface.
+func (d *DJSONB) Next() (Datum, bool) {
+	key := Key(*d)
+	return NewDJSONB(string(Key(append(append([]byte(nil), key...), 0)))), true
+}
+
+// IsMax implements the Datum interface.
+func (*DJSONB) IsMax() bool {
+	return false
+}
+
+// IsMin implements the Datum interface.
+func (d *DJSONB) IsMin() bool {
+	return len(*d) == 0
+}
+
+var dEmptyJSONB = NewDJSONB("")
+
+// min implements the Datum interface.
+func (d *DJSONB) min() (Datum, bool) {
+	return dEmptyJSONB, true
+}
+
+// max implements the Datum interface.
+func (d *DJSONB) max() (Datum, bool) {
+	return nil, false
+}
+
+// AmbiguousFormat implements the Datum interface.
+func (*DJSONB) AmbiguousFormat() bool { return true }
+
+// Format implements the NodeFormatter interface.
+func (d *DJSONB) Format(buf *bytes.Buffer, f FmtFlags) {
+	if f.withinArray {
+		encodeSQLStringInsideArray(buf, string(*d))
+	} else {
+		encodeSQLStringWithFlags(buf, string(*d), f)
+	}
+}
+
+// Size implements the Datum interface.
+func (d *DJSONB) Size() uintptr {
 	return unsafe.Sizeof(*d) + uintptr(len(*d))
 }
 

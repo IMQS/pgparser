@@ -1290,6 +1290,7 @@ func (node *DInt) String() string             { return AsString(node) }
 func (node *DInterval) String() string        { return AsString(node) }
 func (node *DUuid) String() string            { return AsString(node) }
 func (node *DString) String() string          { return AsString(node) }
+func (node *DJSONB) String() string           { return AsString(node) }
 func (node *DCollatedString) String() string  { return AsString(node) }
 func (node *DTimestamp) String() string       { return AsString(node) }
 func (node *DTimestampTZ) String() string     { return AsString(node) }
